@@ -1,1 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>For You ❤️</title>
 
+<style>
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+  -webkit-tap-highlight-color:transparent;
+}
+
+body{
+  font-family:Arial,sans-serif;
+  background:linear-gradient(135deg,#120016,#3b062d,#17001f);
+  color:white;
+  min-height:100vh;
+  overflow:hidden;
+}
+
+#app{
+  width:100%;
+  height:100vh;
+  position:relative;
+}
+
+.page{
+  position:absolute;
+  inset:0;
+  display:none;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
+  padding:25px;
+  overflow-y:auto;
+}
+
+.page.active{
+  display:flex;
+}
+
+h1{
+  font-size:clamp(32px,9vw,60px);
+  margin-bottom:15px;
+}
+
+h2{
+  font-size:clamp(25px,7vw,42px);
+  margin-bottom:15px;
+}
+
+p{
+  max-width:600px;
+  line-height:1.6;
+  opacity:.92;
+}
+
+button{
+  border:0;
+  border-radius:30px;
+  padding:13px 25px;
+  margin:8px;
+  font-size:16px;
+  font-weight:bold;
+  cursor:pointer;
+  color:#4b0736;
+  background:#fff;
+  box-shadow:0 8px 25px #0006;
+}
+
+button:active{
+  transform:scale(.94);
+}
+
+.primary{
+  background:#ff7eb3;
+  color:white;
+}
+
+.card{
+  width:min(92%,520px);
+  padding:25px;
+  border-radius:25px;
+  background:#ffffff12;
+  border:1px solid #ffffff25;
+  backdrop-filter:blur(12px);
+  box-shadow:0 15px 40px #0005;
+}
+
+.status{
+  min-height:28px;
+  margin:12px 0;
+  color:#ffb5d2;
+  font-weight:bold;
+}
+
+.progress{
+  position:fixed;
+  top:15px;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:20;
+  font-size:13px;
+  opacity:.7;
+}
+
+.hearts{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  overflow:hidden;
+}
+
+.heart{
+  position:absolute;
+  bottom:-30px;
+  animation:float 5s linear forwards;
+  opacity:.8;
+}
+
+@keyframes float{
+  to{
+    transform:translateY(-110vh) rotate(360deg);
+    opacity:0;
+  }
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+  width:min(90vw,350px);
+  margin:15px auto;
+}
+
+.memory{
+  height:70px;
+  font-size:28px;
+  margin:0;
+  padding:0;
+}
+
+.tap-area{
+  width:min(90vw,350px);
+  height:180px;
+  border:2px dashed #ff7eb3;
+  border-radius:20px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  margin:15px auto;
+  user-select:none;
+}
+
+.big{
+  font-size:50px;
+}
+
+#reactionBtn{
+  width:100%;
+  height:100%;
+  background:transparent;
+  color:white;
+  box-shadow:none;
+}
+
+.choice{
+  display:block;
+  width:min(90%,400px);
+  margin:10px auto;
+}
+
+.slider{
+  width:90%;
+  accent-color:#ff7eb3;
+}
+
+#loveMeter{
+  font-size:42px;
+  margin:15px;
+}
+
+.final{
+  background:
+    radial-gradient(circle at center,#7b155c55,transparent 45%),
+    linear-gradient(135deg,#180019,#50082f,#19001e);
+}
+
+.final h1{
+  color:#ff91bd;
+  text-shadow:0 0 25px #ff4f9a;
+}
+
+#letter{
+  max-height:55vh;
+  overflow:auto;
+  text-align:left;
+  line-height:1.8;
+  white-space:pre-line;
+}
+</style>
+</head>
+
+<body>
+
+<div id="app">
+
+<div class="hearts" id="hearts"></div>
+
+<div class="progress" id="progress"></div>
+
+<!-- INTRO -->
+<section class="page active" id="p0">
+  <div class="card">
+    <div class="big">💗</div>
+    <h1>Are You Ready?</h1>
+    <p>
+      I made something a little different for you...
+      You'll have to play your way through it. 😌
+    </p>
+    <button class="primary" onclick="nextPage()">I'm Ready ❤️</button>
+  </div>
+</section>
+
+<!-- GAME 1 -->
+<section class="page" id="p1">
+  <div class="card">
+    <h2>💘 Game 1: Pick a Heart</h2>
+    <p>One of these hearts is hiding a message.</p>
+
+    <div class="grid">
+      <button class="memory" onclick="heartPick(this)">❤️</button>
+      <button class="memory" onclick="heartPick(this)">💗</button>
+      <button class="memory" onclick="heartPick(this)">💖</button>
+      <button class="memory" onclick="heartPick(this)">💕</button>
+      <button class="memory" onclick="heartPick(this)">💓</button>
+      <button class="memory" onclick="heartPick(this)">💞</button>
+    </div>
+
+    <div class="status" id="heartStatus"></div>
+    <button id="heartNext" class="primary" style="display:none" onclick="nextPage()">Continue 💕</button>
+  </div>
+</section>
+
+<!-- GAME 2 -->
+<section class="page" id="p2">
+  <div class="card">
+    <h2>⚡ Game 2: Catch Me</h2>
+    <p>Tap the button as many times as you can in 10 seconds!</p>
+
+    <h2 id="score">0</h2>
+    <button class="primary" id="tapGame" onclick="tapGame()">TAP ❤️</button>
+
+    <div class="status" id="tapStatus"></div>
+    <button id="tapNext" style="display:none" onclick="nextPage()">Next 💗</button>
+  </div>
+</section>
+
+<!-- GAME 3 -->
+<section class="page" id="p3">
+  <div class="card">
+    <h2>🧠 Game 3: Little Quiz</h2>
+    <p id="question">Which one sounds the most like us?</p>
+
+    <button class="choice" onclick="answer(0)">Laughing together 😂</button>
+    <button class="choice" onclick="answer(1)">Random conversations 🌙</button>
+    <button class="choice" onclick="answer(2)">Making memories 💕</button>
+
+    <div class="status" id="quizStatus"></div>
+  </div>
+</section>
+
+<!-- GAME 4 -->
+<section class="page" id="p4">
+  <div class="card">
+    <h2>🎯 Game 4: Don't Miss</h2>
+    <p>Tap the pink button whenever it appears.</p>
+
+    <div class="tap-area" id="targetArea">
+      <button id="target" class="primary" onclick="hitTarget()">Catch Me!</button>
+    </div>
+
+    <div class="status" id="targetStatus">Hits: 0 / 5</div>
+  </div>
+</section>
+
+<!-- GAME 5 -->
+<section class="page" id="p5">
+  <div class="card">
+    <h2>💞 Game 5: Love Meter</h2>
+    <p>How much love should this meter contain?</p>
+
+    <input class="slider" type="range" min="0" max="100" value="50"
+           oninput="meter(this.value)">
+
+    <div id="loveMeter">50% ❤️</div>
+
+    <button class="primary" onclick="nextPage()">That feels right 💕</button>
+  </div>
+</section>
+
+<!-- GAME 6 -->
+<section class="page" id="p6">
+  <div class="card">
+    <h2>🔤 Game 6: Complete It</h2>
+    <p>Finish this sentence:</p>
+
+    <h2>“You make my days...”</h2>
+
+    <button class="choice" onclick="finishSentence(this)">better ❤️</button>
+    <button class="choice" onclick="finishSentence(this)">brighter ✨</button>
+    <button class="choice" onclick="finishSentence(this)">special 💗</button>
+
+    <div class="status" id="sentenceStatus"></div>
+  </div>
+</section>
+
+<!-- GAME 7 -->
+<section class="page" id="p7">
+  <div class="card">
+    <h2>🎲 Game 7: Lucky Number</h2>
+    <p>Pick a number between 1 and 6.</p>
+
+    <div class="grid">
+      <button onclick="numberPick(1)">1</button>
+      <button onclick="numberPick(2)">2</button>
+      <button onclick="numberPick(3)">3</button>
+      <button onclick="numberPick(4)">4</button>
+      <button onclick="numberPick(5)">5</button>
+      <button onclick="numberPick(6)">6</button>
+    </div>
+
+    <div class="status" id="numberStatus"></div>
+  </div>
+</section>
+
+<!-- GAME 8 -->
+<section class="page" id="p8">
+  <div class="card">
+    <h2>💌 Game 8: One Last Choice</h2>
+    <p>Choose what you want next.</p>
+
+    <button class="choice" onclick="finalChoice()">A surprise 🎁</button>
+    <button class="choice" onclick="finalChoice()">A message 💌</button>
+    <button class="choice" onclick="finalChoice()">Both 😌❤️</button>
+
+    <div class="status" id="choiceStatus"></div>
+  </div>
+</section>
+
+<!-- FINAL -->
+<section class="page final" id="p9">
+  <div class="card">
+    <div class="big">🎂❤️</div>
+
+    <h1>Happy Birthday!</h1>
+
+    <div id="letter">
+      Happy Birthday to someone truly special. ❤️
+
+      I hope this little journey made you smile,
+      because you deserve so many reasons to smile.
+
+      May this year bring you happiness,
+      beautiful memories, peaceful days,
+      and everything your heart wishes for.
+
+      Keep being the amazing person you are.
+
+      And most importantly...
+
+      HAPPY BIRTHDAY! 🎂🎉❤️
+
+      Here's to another year of you,
+      more laughter,
+      more memories,
+      and many more beautiful moments. 💕
+
+      With lots of love,
+      always. ❤️
+    </div>
+
+    <button class="primary" onclick="celebrate()">Celebrate 🎉</button>
+  </div>
+</section>
+
+</div>
+
+<script>
+
+let page = 0;
+const totalPages = 10;
+
+function showPage(n){
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+
+  const target=document.getElementById("p"+n);
+  if(target) target.classList.add("active");
+
+  page=n;
+
+  document.getElementById("progress").textContent =
+    n===0 || n===9 ? "" : `Game ${n} / 8`;
+
+  if(n===9){
+    document.getElementById("progress").textContent="";
+    startHearts();
+  }
+}
+
+function nextPage(){
+  if(page < totalPages-1){
+    showPage(page+1);
+  }
+}
+
+function startHearts(){
+  setInterval(()=>{
+    const h=document.createElement("div");
+    h.className="heart";
+    h.textContent=["❤️","💗","💕","💖","💓"][Math.floor(Math.random()*5)];
+    h.style.left=Math.random()*100+"%";
+    h.style.fontSize=(15+Math.random()*25)+"px";
+    h.style.animationDuration=(4+Math.random()*4)+"s";
+
+    document.getElementById("hearts").appendChild(h);
+
+    setTimeout(()=>h.remove(),8000);
+  },500);
+}
+
+
+/* GAME 1 */
+
+let heartFound=false;
+
+function heartPick(btn){
+  if(heartFound)return;
+
+  if(Math.random()<0.45){
+    heartFound=true;
+    btn.textContent="💌";
+    document.getElementById("heartStatus").textContent=
+      "You found it! ❤️ I knew you'd choose the right one.";
+    document.getElementById("heartNext").style.display="inline-block";
+  }else{
+    btn.textContent="✨";
+    document.getElementById("heartStatus").textContent=
+      "Not this one 😭 Try another!";
+  }
+}
+
+
+/* GAME 2 */
+
+let score=0;
+let gameStarted=false;
+let gameOver=false;
+let timer;
+
+function tapGame(){
+
+  if(gameOver)return;
+
+  if(!gameStarted){
+    gameStarted=true;
+
+    timer=setTimeout(()=>{
+      gameOver=true;
+
+      document.getElementById("tapStatus").textContent=
+        `Time's up! You got ${score} taps! ❤️`;
+
+      document.getElementById("tapNext").style.display="inline-block";
+
+    },10000);
+  }
+
+  score++;
+  document.getElementById("score").textContent=score;
+}
+
+
+/* GAME 3 */
+
+function answer(n){
+
+  document.getElementById("quizStatus").textContent=
+    "Correct answer: honestly... all three. ❤️";
+
+  setTimeout(()=>nextPage(),900);
+}
+
+
+/* GAME 4 */
+
+let hits=0;
+
+function moveTarget(){
+
+  const area=document.getElementById("targetArea");
+  const target=document.getElementById("target");
+
+  const maxX=area.clientWidth-target.offsetWidth-10;
+  const maxY=area.clientHeight-target.offsetHeight-10;
+
+  target.style.position="absolute";
+  target.style.left=Math.max(5,Math.random()*maxX)+"px";
+  target.style.top=Math.max(5,Math.random()*maxY)+"px";
+}
+
+function hitTarget(){
+
+  hits++;
+
+  document.getElementById("targetStatus").textContent=
+    `Hits: ${hits} / 5`;
+
+  if(hits>=5){
+    document.getElementById("targetStatus").textContent=
+      "You caught it! ❤️";
+    setTimeout(()=>nextPage(),800);
+  }else{
+    moveTarget();
+  }
+}
+
+
+/* GAME 5 */
+
+function meter(v){
+  document.getElementById("loveMeter").textContent=
+    v+"% ❤️";
+}
+
+
+/* GAME 6 */
+
+function finishSentence(btn){
+
+  document.getElementById("sentenceStatus").textContent=
+    "Exactly. That's the answer I wanted. 🥹❤️";
+
+  setTimeout(()=>nextPage(),900);
+}
+
+
+/* GAME 7 */
+
+function numberPick(n){
+
+  const lucky=Math.floor(Math.random()*6)+1;
+
+  if(n===lucky){
+    document.getElementById("numberStatus").textContent=
+      "LUCKY! 🍀❤️ You found it!";
+    setTimeout(()=>nextPage(),1000);
+  }else{
+    document.getElementById("numberStatus").textContent=
+      "Not this one 😭 Pick again!";
+  }
+}
+
+
+/* GAME 8 */
+
+function finalChoice(){
+
+  document.getElementById("choiceStatus").textContent=
+    "Good choice. You deserve both. ❤️";
+
+  setTimeout(()=>nextPage(),1000);
+}
+
+
+/* FINAL */
+
+function celebrate(){
+
+  for(let i=0;i<40;i++){
+    setTimeout(()=>{
+      const h=document.createElement("div");
+      h.className="heart";
+      h.textContent=["❤️","🎉","💖","✨","💕"][Math.floor(Math.random()*5)];
+      h.style.left=Math.random()*100+"%";
+      h.style.fontSize=(20+Math.random()*30)+"px";
+      h.style.animationDuration=(2+Math.random()*3)+"s";
+
+      document.getElementById("hearts").appendChild(h);
+
+      setTimeout(()=>h.remove(),5000);
+    },i*80);
+  }
+
+  alert("HAPPY BIRTHDAY! 🎂❤️🎉");
+}
+
+
+/* START */
+  /* =========================
+   BACKGROUND MUSIC
+========================= */
+
+const bgMusic = document.getElementById("bgMusic");
+const musicBtn = document.getElementById("musicBtn");
+
+let musicPlaying = false;
+
+bgMusic.volume = 0.45;
+
+function updateMusicButton(){
+  musicBtn.textContent = musicPlaying ? "🔊" : "🎵";
+}
+
+async function startMusic(){
+
+  try{
+    await bgMusic.play();
+
+    musicPlaying = true;
+    updateMusicButton();
+
+  }catch(error){
+
+    // Autoplay blocked by browser.
+    musicPlaying = false;
+    updateMusicButton();
+
+    musicBtn.textContent = "▶️";
+  }
+}
+
+async function toggleMusic(){
+
+  if(bgMusic.paused){
+
+    try{
+      await bgMusic.play();
+
+      musicPlaying = true;
+      musicBtn.textContent = "🔊";
+
+    }catch(error){
+      musicBtn.textContent = "▶️";
+    }
+
+  }else{
+
+    bgMusic.pause();
+
+    musicPlaying = false;
+    musicBtn.textContent = "🎵";
+  }
+}
+
+
+/* Try autoplay immediately */
+window.addEventListener("load",()=>{
+  startMusic();
+});
+
+
+/* Fallback:
+   first user interaction starts music */
+document.addEventListener("click", function firstInteraction(){
+
+  if(bgMusic.paused){
+    startMusic();
+  }
+
+  document.removeEventListener("click", firstInteraction);
+
+},{once:true});
+
+
+/* Also support touch */
+document.addEventListener("touchstart", function firstTouch(){
+
+  if(bgMusic.paused){
+    startMusic();
+  }
+
+  document.removeEventListener("touchstart", firstTouch);
+
+},{once:true});
+
+showPage(0);
+
+</script>
+
+</body>
+  <audio id="bgMusic" loop preload="auto">
+  <source src="music.mp3" type="audio/mpeg">
+</audio>
+
+<button id="musicBtn" onclick="toggleMusic()"
+style="
+position:fixed;
+top:15px;
+right:15px;
+z-index:100;
+border-radius:50%;
+width:52px;
+height:52px;
+padding:0;
+font-size:22px;
+background:#ffffff22;
+color:white;
+border:1px solid #ffffff44;
+backdrop-filter:blur(10px);
+">
+🎵
+</button>
+</html>
